@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "description": "Sample to show how to use barrel import transformer to improve jest performance for barrel imports",
     "scripts": {
-        "test": "jest"
+        "test": "npm run build-barrel-transform && jest",
+        "build-barrel-transform": "tsc transformer/barrelImportTransformerProcessor.ts --outDir transform_cache && node transform_cache/exportFinder.js"
     },
     "keywords": [
         "jest",
