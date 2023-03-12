@@ -8,26 +8,20 @@ import type {
     TransformerCreator,
 } from '@jest/transform';
 
-const getTsJestTranformer = () => {
-    return tsJest.default.createTransformer({
-        isolatedModules: true
-    });
-}
-
 /**
  * Processes the file by transforming the barrel imports using TSC Api as in barrelImportTransformer.ts file.
  * Then the transformed file is passed to the ts-jest to process it further
  */
-const transformWithTsJest = (sourceText: string, sourcePath: string, config: tsJest.TransformOptionsTsJest) => {
+const transformWithTsJest = (tsJestTransformer: tsJest.TsJestTransformer, sourceText: string, sourcePath: string, config: tsJest.TransformOptionsTsJest) => {
     printLog("->Transforming file -", sourcePath);
     const transformedText = getTransformedText(sourcePath, sourceText);
-    return getTsJestTranformer().process(transformedText, sourcePath, config);
+    return tsJestTransformer.process(transformedText, sourcePath, config);
 };
 
-const transformWithTsJestAsync = (sourceText: string, sourcePath: string, config: tsJest.TransformOptionsTsJest) => {
+const transformWithTsJestAsync = (tsJestTransformer: tsJest.TsJestTransformer, sourceText: string, sourcePath: string, config: tsJest.TransformOptionsTsJest) => {
     printLog("->Transforming file async -", sourcePath);
     const transformedText = getTransformedText(sourcePath, sourceText);
-    return getTsJestTranformer().processAsync(transformedText, sourcePath, config);
+    return tsJestTransformer.processAsync(transformedText, sourcePath, config);
 };
 
 const printLog = (...args: any[]) => {
@@ -81,10 +75,14 @@ function getCacheKeyFromConfig(
         .substring(0, 32);
 }
 
+const getTsJestTranformer = (tsJestConfigOptions?: tsJest.TsJestGlobalOptions | undefined) => {
+    return tsJest.default.createTransformer(tsJestConfigOptions);
+}
+
 export const createTransformer: TransformerCreator<
-    SyncTransformer<JestTransformOptions>,
-    JestTransformOptions
-> = (_userOptions) => {
+    SyncTransformer<tsJest.TsJestGlobalOptions>,
+    tsJest.TsJestGlobalOptions> = (tsJestConfigOptions: tsJest.TsJestGlobalOptions | undefined) => {
+    
     return {
         canInstrument: true,
         getCacheKey(sourceText, sourcePath, transformOptions) {
@@ -108,7 +106,8 @@ export const createTransformer: TransformerCreator<
             return cacheKey;
         },
         process(sourceText, sourcePath, transformOptions) {
-            const transformResult = transformWithTsJest(sourceText, sourcePath, transformOptions);
+            const tsJestTransformer = getTsJestTranformer(tsJestConfigOptions);
+            const transformResult = transformWithTsJest(tsJestTransformer, sourceText, sourcePath, transformOptions);
 
             if (transformResult) {
                 const { code, map } = transformResult;
@@ -117,11 +116,11 @@ export const createTransformer: TransformerCreator<
                 }
             }
 
-
             return { code: sourceText };
         },
         async processAsync(sourceText, sourcePath, transformOptions) {
-            const transformResult = await transformWithTsJestAsync(sourceText, sourcePath, transformOptions);
+            const tsJestTransformer = getTsJestTranformer(tsJestConfigOptions);
+            const transformResult = await transformWithTsJestAsync(tsJestTransformer, sourceText, sourcePath, transformOptions);
             if (transformResult) {
                 const { code, map } = transformResult;
                 if (typeof code === 'string') {
