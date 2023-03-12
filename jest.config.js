@@ -6,15 +6,7 @@ const canUseBarrelImportTransformer = existsSync("./transform_cache/importLookup
 module.exports = {
     rootDir: ".",
     testEnvironment: "node",
-    globals: {
-        "ts-jest": {
-            isolatedModules: true,
-        },
-    },
     moduleFileExtensions: ["ts", "js", "mjs"],
-    transform: {
-        "^.+\\.(ts|tsx)$": "ts-jest",
-    },
     moduleNameMapper: {
         "src/(.*)": "<rootDir>/src/$1",
     },
@@ -22,7 +14,10 @@ module.exports = {
     transform: {
         "^.+\\.(js|jsx)": "babel-jest",
         "^.+\\.(ts|tsx)": canUseBarrelImportTransformer
-            ? "<rootDir>/transform_cache/barrelImportTransformerProcessor.js"
-            : "ts-jest",
+            ? ["<rootDir>/transform_cache/barrelImportTransformerProcessor.js", { isolatedModules: true, compiler: 'typescript' }]
+            : ["ts-jest", {
+                isolatedModules: true,
+                compiler: 'typescript'
+            }],
     },
 };
