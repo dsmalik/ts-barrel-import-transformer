@@ -12,13 +12,13 @@ import type {
  * Processes the file by transforming the barrel imports using TSC Api as in barrelImportTransformer.ts file.
  * Then the transformed file is passed to the ts-jest to process it further
  */
-const transformWithTsJest = (tsJestTransformer: tsJest.TsJestTransformer, sourceText: string, sourcePath: string, config: tsJest.TransformOptionsTsJest) => {
+const transformWithTsJest = (tsJestTransformer: tsJest.TsJestTransformer, sourceText: string, sourcePath: string, config: JestTransformOptions) => {
     printLog("->Transforming file -", sourcePath);
     const transformedText = getTransformedText(sourcePath, sourceText);
     return tsJestTransformer.process(transformedText, sourcePath, config);
 };
 
-const transformWithTsJestAsync = (tsJestTransformer: tsJest.TsJestTransformer, sourceText: string, sourcePath: string, config: tsJest.TransformOptionsTsJest) => {
+const transformWithTsJestAsync = (tsJestTransformer: tsJest.TsJestTransformer, sourceText: string, sourcePath: string, config: JestTransformOptions) => {
     printLog("->Transforming file async -", sourcePath);
     const transformedText = getTransformedText(sourcePath, sourceText);
     return tsJestTransformer.processAsync(transformedText, sourcePath, config);
@@ -79,63 +79,63 @@ function getCacheKeyFromConfig(
         .substring(0, 32);
 }
 
-const getTsJestTranformer = (tsJestConfigOptions?: tsJest.TsJestGlobalOptions | undefined) => {
+const getTsJestTranformer = (tsJestConfigOptions?: tsJest.TsJestTransformerOptions | undefined) => {
     return tsJest.default.createTransformer(tsJestConfigOptions);
 }
 
 export const createTransformer: TransformerCreator<
-    SyncTransformer<tsJest.TsJestGlobalOptions>,
-    tsJest.TsJestGlobalOptions> = (tsJestConfigOptions: tsJest.TsJestGlobalOptions | undefined) => {
-    
-    return {
-        canInstrument: true,
-        getCacheKey(sourceText, sourcePath, transformOptions) {
-            const cacheKey = getCacheKeyFromConfig(
-                sourceText,
-                sourcePath,
-                transformOptions,
-            );
+    SyncTransformer<tsJest.TsJestTransformerOptions>,
+    tsJest.TsJestTransformerOptions> = (tsJestConfigOptions: tsJest.TsJestTransformerOptions | undefined) => {
 
-            printLog('Cache key for - ', sourcePath, '-', cacheKey);
-            return cacheKey;
-        },
-        async getCacheKeyAsync(sourceText, sourcePath, transformOptions) {
-            const cacheKey = getCacheKeyFromConfig(
-                sourceText,
-                sourcePath,
-                transformOptions,
-            );
+        return {
+            canInstrument: true,
+            getCacheKey(sourceText: string, sourcePath: string, transformOptions: JestTransformOptions) {
+                const cacheKey = getCacheKeyFromConfig(
+                    sourceText,
+                    sourcePath,
+                    transformOptions,
+                );
 
-            printLog('Cache key async for - ', sourcePath, '-', cacheKey);
-            return cacheKey;
-        },
-        process(sourceText, sourcePath, transformOptions) {
-            const tsJestTransformer = getTsJestTranformer(tsJestConfigOptions);
-            const transformResult = transformWithTsJest(tsJestTransformer, sourceText, sourcePath, transformOptions);
+                printLog('Cache key for - ', sourcePath, '-', cacheKey);
+                return cacheKey;
+            },
+            async getCacheKeyAsync(sourceText: string, sourcePath: string, transformOptions: JestTransformOptions) {
+                const cacheKey = getCacheKeyFromConfig(
+                    sourceText,
+                    sourcePath,
+                    transformOptions,
+                );
 
-            if (transformResult) {
-                const { code, map } = transformResult;
-                if (typeof code === 'string') {
-                    return { code, map };
+                printLog('Cache key async for - ', sourcePath, '-', cacheKey);
+                return cacheKey;
+            },
+            process(sourceText: string, sourcePath: string, transformOptions: JestTransformOptions) {
+                const tsJestTransformer = getTsJestTranformer(tsJestConfigOptions);
+                const transformResult = transformWithTsJest(tsJestTransformer, sourceText, sourcePath, transformOptions);
+
+                if (transformResult) {
+                    const { code, map } = transformResult;
+                    if (typeof code === 'string') {
+                        return { code, map };
+                    }
                 }
-            }
 
-            return { code: sourceText };
-        },
-        async processAsync(sourceText, sourcePath, transformOptions) {
-            const tsJestTransformer = getTsJestTranformer(tsJestConfigOptions);
-            const transformResult = await transformWithTsJestAsync(tsJestTransformer, sourceText, sourcePath, transformOptions);
-            if (transformResult) {
-                const { code, map } = transformResult;
-                if (typeof code === 'string') {
-                    return { code, map };
+                return { code: sourceText };
+            },
+            async processAsync(sourceText: string, sourcePath: string, transformOptions: JestTransformOptions) {
+                const tsJestTransformer = getTsJestTranformer(tsJestConfigOptions);
+                const transformResult = await transformWithTsJestAsync(tsJestTransformer, sourceText, sourcePath, transformOptions);
+                if (transformResult) {
+                    const { code, map } = transformResult;
+                    if (typeof code === 'string') {
+                        return { code, map };
+                    }
                 }
-            }
 
-            return { code: sourceText };
-        },
+                return { code: sourceText };
+            },
+        };
     };
-};
 
 const transformerFactory = {
     // Assigned here, instead of as a separate export, due to limitations in Jest's
