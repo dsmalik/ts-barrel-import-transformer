@@ -1,7 +1,9 @@
 /**
  * The pattern of files from which we should generate the import lookup map from
  */
-export const filesToLookupExportsFrom = ["src/**/*.ts*"];
+export const filesToLookupExportsFrom = ["src/**/*.ts*", "node_modules/@material-ui/core/**/*.ts*"];
+
+export const publicApiToLookupExportsFrom = ["src/index.ts", "node_modules/@material-ui/core/index.d.ts"];
 
 /**
  * Condition to evaluate when checking whether to transform a import declarations based on the module name of import statement

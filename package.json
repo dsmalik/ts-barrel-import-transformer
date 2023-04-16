@@ -4,7 +4,7 @@
     "description": "Sample to show how to use barrel import transformer to improve jest performance for barrel imports",
     "scripts": {
         "test": "npm run build-barrel-transform && jest",
-        "build-barrel-transform": "tsc transformer/barrelImportTransformerProcessor.ts --outDir transform_cache && node transform_cache/exportFinder.js"
+        "build-barrel-transform": "tsc transformer/barrelImportTransformerProcessor.ts --outDir transform_cache && node transform_cache/publicImportFinder.js"
     },
     "keywords": [
         "jest",
@@ -15,6 +15,7 @@
     "license": "MIT",
     "devDependencies": {
         "@types/jest": "^29.4.0",
+        "@types/node": "^18.15.11",
         "jest": "^29.5.0",
         "ts-jest": "^29.0.5",
         "ts-morph": "^14.0.0",

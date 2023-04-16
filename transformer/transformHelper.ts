@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 import { readFileSync } from "fs";
-import { ISymbolInfo } from "./exportFinder";
+import { ISymbolInfo } from "./publicImportFinder";
 import { shouldTransformImportDeclarationCriteria } from "./transformParameters";
 
 const fileContent = readFileSync("./transform_cache/importLookupData.json", "utf-8");
@@ -97,7 +97,7 @@ export const getImportDeclarationsForImportClause = (
 
         const importSpecifiers = imports.map((i) =>
             // Below gives compile time error depending on tsc version i think. Change as per
-            ts.createImportSpecifier(undefined, undefined, ts.createIdentifier(i))
+            ts.createImportSpecifier(false, undefined, ts.createIdentifier(i))
         );
 
         const newImportDeclaration = ts.createImportDeclaration(
@@ -135,7 +135,7 @@ const getImportFilePath = (
     _importPathInOriginalImport: string
 ) => {
     const namedImportText = namedImport.getText();
-    let importFilePath = uniqueSymbolMap.get(namedImportText)?.identifier;
+    let importFilePath = uniqueSymbolMap.get(namedImportText)?.path;
     return importFilePath;
 };
 
