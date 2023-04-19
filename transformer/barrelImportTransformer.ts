@@ -137,6 +137,7 @@ export const barrelImportTransformer = (ctx: ts.TransformationContext): ts.Trans
 
     return (sf: ts.SourceFile) => {
         try {
+            console.warn("Transforming file 0", sf.fileName);
             let tsf = ts.visitNode(sf, nodeVisitor(ctx, sf));
             return tsf;
         } catch (e) {
@@ -148,6 +149,27 @@ export const barrelImportTransformer = (ctx: ts.TransformationContext): ts.Trans
         }
     };
 };
+
+// export function factory(compilerInstance: TsCompilerInstance) {
+//     const ts = compilerInstance.configSet.compilerModule;
+//     // const program = compilerInstance.program;
+
+//     function createVisitor(ctx: TransformationContext, sf: SourceFile) {
+//         printLog(sf, "Input - \n", ts.createPrinter().printFile(sf));
+//         const visitor: Visitor = (node) => {
+//             // if (ts.isSourceFile(node)) {
+//             //     const ss = getTransformedText(sf.fileName, readFileSync(sf.fileName, "utf-8"));
+//             //     console.log(createPrinter().printFile(ss));
+//             //     return ss;
+//             // }
+
+//             return ts.visitEachChild(node, visitor, ctx);
+//         };
+//         return visitor;
+//     }
+
+//     return barrelImportTransformer;
+// }
 
 const printLog = (...args: any[]) => {
     console.log(...args);

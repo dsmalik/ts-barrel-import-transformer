@@ -44,8 +44,8 @@ export const getImportDeclarationsForImportClause = (
     importDeclaration: ts.ImportDeclaration,
     namedImports: ts.NamedImports | undefined,
     sf: ts.SourceFile
-): ts.ImportDeclaration[] => {
-    if (!ts.isNamedImports(namedImports)) {
+): ts.ImportDeclaration[] | undefined => {
+    if (!ts.isNamedImports(namedImports!)) {
         printLog("    Named import not found - ", namedImports);
         return undefined;
     }
@@ -97,7 +97,7 @@ export const getImportDeclarationsForImportClause = (
 
         const importSpecifiers = imports.map((i) =>
             // Below gives compile time error depending on tsc version i think. Change as per
-            ts.createImportSpecifier(undefined, undefined, ts.createIdentifier(i))
+            ts.createImportSpecifier(false, undefined, ts.createIdentifier(i))
         );
 
         const newImportDeclaration = ts.createImportDeclaration(
