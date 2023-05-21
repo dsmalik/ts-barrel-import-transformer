@@ -8,6 +8,11 @@ pipeline {
             }
         }
 
+        stage('Configure node') {
+            nodejs('node v18') {
+            }
+        }
+
         stage('install dependencies') {
             steps {
                 sh 'npm ci'
