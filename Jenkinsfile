@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/dsmalik/ts-barrel-import-transformer.git']])
+                checkout scmGit(branches: [[name: '*/dev/integrate_with_jenkins']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/dsmalik/ts-barrel-import-transformer.git']])
             }
         }
 
