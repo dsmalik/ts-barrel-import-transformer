@@ -1,0 +1,27 @@
+name: PR MCP Integration
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  notify_mcp:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify MCP Server on New Pull Request
+        env:
+          MCP_SERVER_URL: ${{ secrets.MCP_SERVER_URL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+          REPO="${{ github.repository }}"
+          curl -X POST "$MCP_SERVER_URL/pr-created" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "pr_number": "'$PR_NUMBER'",
+              "pr_title": "'$PR_TITLE'",
+              "pr_url": "'$PR_URL'",
+              "repo": "'$REPO'"
+            }'
