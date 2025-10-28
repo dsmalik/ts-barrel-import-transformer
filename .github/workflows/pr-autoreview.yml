@@ -1,0 +1,25 @@
+name: PR Auto Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai_review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GitHub Automatic Code Review
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pr = context.payload.pull_request;
+            if (!pr) return;
+            // Trigger Copilot code review
+            await github.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/copilot/review', {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+            // Optionally, you may add a comment or log an action
+            core.info(`Requested Copilot code review for PR #${pr.number}`);
